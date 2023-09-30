@@ -4,26 +4,23 @@
 Defines a function that returns a list of lists of integers
 representing Pascal's triangle of n rows
 """
-def pascal_triangle(n):
-    if n <= 0:
-        return []
-
-    # Initialize Pascal's triangle with the first two rows
-    triangle = [[1], [1, 1]]
-
-    # Generate the remaining rows of Pascal's triangle
-    for i in range(2, n):
-        previous_row = triangle[-1]
-        new_row = [1]  # The first element of each row is always 1
-        for j in range(1, i):
-            new_row.append(previous_row[j - 1] + previous_row[j])
-        new_row.append(1)  # The last element of each row is always 1
-        triangle.append(new_row)
-
+def pascal_triangle(num_rows):
+    if type(num_rows) is not int:
+        raise TypeError("num_rows must be an integer")
+    
+    triangle = []
+    
+    if num_rows <= 0:
+        return triangle
+    
+    for i in range(num_rows):
+        row = [1]
+        if triangle:
+            prev_row = triangle[-1]
+            for j in range(1, i):
+                row.append(prev_row[j - 1] + prev_row[j])
+            row.append(1)
+        triangle.append(row)
+    
     return triangle
 
-# Example usage:
-n = 5
-result = pascal_triangle(n)
-for row in result:
-    print(row)
