@@ -11,8 +11,8 @@ def canUnlockAll(boxes):
     """
     for current_box in range(1, len(boxes) - 1):
         found_key = False
-        for box_index in range(len(boxes)):
-            found_key = (current_box in boxes[box_index] and current_box != box_index)
+        for box in range(len(boxes)):
+            found_key = (current_box in boxes[box] and current_box != box)
             if found_key:
                 break
         if not found_key:
