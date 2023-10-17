@@ -1,52 +1,48 @@
+#!/usr/bin/python3
+"""
+Task - Script that reads stdin line by line and computes metrics
+"""
+
 import sys
-import signal
 
-# Initialize variables to store metrics
-total_file_size = 0
-status_code_counts = {}
 
-# Define a function to print the metrics
-def print_metrics():
-    print("Total file size:", total_file_size)
-    for status_code in sorted(status_code_counts.keys()):
-        print(f"{status_code}: {status_code_counts[status_code]}")
+if __name__ == "__main__":
+    st_code = {"200": 0,
+               "301": 0,
+               "400": 0,
+               "401": 0,
+               "403": 0,
+               "404": 0,
+               "405": 0,
+               "500": 0}
+    count = 1
+    file_size = 0
 
-# Define a function to reset the metrics
-def reset_metrics():
-    global total_file_size
-    global status_code_counts
-    total_file_size = 0
-    status_code_counts = {}
+    def parse_line(line):
+        """ Read, parse and grab data"""
+        try:
+            parsed_line = line.split()
+            status_code = parsed_line[-2]
+            if status_code in st_code.keys():
+                st_code[status_code] += 1
+            return int(parsed_line[-1])
+        except Exception:
+            return 0
 
-# Handle keyboard interruption (CTRL + C)
-def signal_handler(signal, frame):
-    print_metrics()
-    sys.exit(0)
+    def print_stats():
+        """print stats in ascending order"""
+        print("File size: {}".format(file_size))
+        for key in sorted(st_code.keys()):
+            if st_code[key]:
+                print("{}: {}".format(key, st_code[key]))
 
-signal.signal(signal.SIGINT, signal_handler)
-
-try:
-    line_count = 0
-    for line in sys.stdin:
-        # Parse the line with a regular expression
-        import re
-        match = re.match(r'^\S+ - \[.+\] "GET /projects/260 HTTP/1\.1" (\d+) (\d+)$', line)
-        if match:
-            status_code, file_size = int(match.group(1)), int(match.group(2))
-            total_file_size += file_size
-
-            if status_code in [200, 301, 400, 401, 403, 404, 405, 500]:
-                if status_code in status_code_counts:
-                    status_code_counts[status_code] += 1
-                else:
-                    status_code_counts[status_code] = 1
-
-            line_count += 1
-
-            if line_count % 10 == 0:
-                print_metrics()
-                reset_metrics()
-
-except KeyboardInterrupt:
-    # Handle keyboard interruption (CTRL + C) and print metrics
-    print_metrics()
+    try:
+        for line in sys.stdin:
+            file_size += parse_line(line)
+            if count % 10 == 0:
+                print_stats()
+            count += 1
+    except KeyboardInterrupt:
+        print_stats()
+        raise
+    print_stats()
